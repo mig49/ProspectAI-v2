@@ -1,0 +1,5 @@
+{
+  "name": "ProspectAI",
+  "description": "Ferramenta de prospecção de leads para profissionais de IA usando Google Places e Gemini.",
+  "requestFramePermissions": []
+}
