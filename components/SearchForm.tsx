@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BRAZILIAN_STATES } from "@/lib/constants";
+import { PORTUGAL_DISTRICTS } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -16,7 +16,7 @@ interface SearchFormProps {
 export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [icp, setIcp] = useState("");
   const [service, setService] = useState("");
-  const [state, setState] = useState("SP");
+  const [state, setState] = useState("Lisboa");
   const [city, setCity] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -30,7 +30,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         <h2 className="text-2xl font-bold text-slate-900 mb-2">
           Encontre seus próximos clientes
         </h2>
-        <p className="text-slate-500">
+        <p className="text-slate-600">
           A IA do ProspectAI encontra e qualifica leads baseados no seu serviço.
         </p>
       </div>
@@ -38,7 +38,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Target className="w-4 h-4 text-blue-500" />
+            <Target className="w-4 h-4 text-blue-500" aria-hidden="true" />
             Descreva seu ICP (Perfil de Cliente Ideal)
           </label>
           <Textarea
@@ -52,7 +52,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-blue-500" />
+            <Briefcase className="w-4 h-4 text-blue-500" aria-hidden="true" />
             Qual serviço você oferece?
           </label>
           <Textarea
@@ -67,18 +67,18 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-500" />
-              Estado
+              <MapPin className="w-4 h-4 text-blue-500" aria-hidden="true" />
+              Distrito
             </label>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
               className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
-              <option value="Todo o Brasil">Todo o Brasil</option>
-              {BRAZILIAN_STATES.map((s) => (
+              <option value="Todo Portugal">Todo Portugal</option>
+              {PORTUGAL_DISTRICTS.map((s) => (
                 <option key={s.value} value={s.value}>
-                  {s.label} ({s.value})
+                  {s.label}
                 </option>
               ))}
             </select>
@@ -90,7 +90,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             <Input
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Ex: São Paulo"
+              placeholder="Ex: Lisboa"
             />
           </div>
         </div>
@@ -113,7 +113,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               </span>
             )}
           </Button>
-          <p className="text-center text-xs text-slate-400 mt-3">
+          <p className="text-center text-xs text-slate-600 mt-3">
             Busca alimentada pelo Google Maps via Gemini AI (Gratuito)
           </p>
         </div>

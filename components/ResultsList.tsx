@@ -60,7 +60,7 @@ export function ResultsList({
           <Button
             variant="ghost"
             onClick={onBack}
-            className="mb-2 -ml-4 text-slate-500"
+            className="mb-2 -ml-4 text-slate-600"
           >
             &larr; Nova Busca
           </Button>
@@ -76,7 +76,7 @@ export function ResultsList({
               "p-2 rounded-md transition-colors",
               viewMode === "card"
                 ? "bg-slate-100 text-slate-900"
-                : "text-slate-500 hover:text-slate-900",
+                : "text-slate-600 hover:text-slate-900",
             )}
             title="Visualização em Cards"
           >
@@ -88,7 +88,7 @@ export function ResultsList({
               "p-2 rounded-md transition-colors",
               viewMode === "table"
                 ? "bg-slate-100 text-slate-900"
-                : "text-slate-500 hover:text-slate-900",
+                : "text-slate-600 hover:text-slate-900",
             )}
             title="Visualização em Tabela"
           >
@@ -121,13 +121,13 @@ export function ResultsList({
 
                 <div className="space-y-2 mb-4 text-sm text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                    <Building2 className="w-4 h-4 text-slate-500 shrink-0" />
                     <span className="truncate">
                       {lead.primaryType?.replace(/_/g, " ") || "Negócio Local"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                    <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
                     <span className="truncate">
                       {lead.city}, {lead.state}
                     </span>
@@ -159,7 +159,7 @@ export function ResultsList({
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+            <thead className="text-xs text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4 font-medium">Nome</th>
                 <th className="px-6 py-4 font-medium">Local</th>
@@ -180,7 +180,7 @@ export function ResultsList({
                     title={lead.name}
                   >
                     {lead.name}
-                    <div className="text-xs text-slate-500 font-normal mt-1">
+                    <div className="text-xs text-slate-600 font-normal mt-1">
                       {lead.primaryType?.replace(/_/g, " ")}
                     </div>
                   </td>
@@ -191,7 +191,7 @@ export function ResultsList({
                     <div className="flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                       <span className="font-medium">{lead.rating || "-"}</span>
-                      <span className="text-slate-400 text-xs">
+                      <span className="text-slate-600 text-xs">
                         ({lead.userRatingCount || 0})
                       </span>
                     </div>
@@ -211,7 +211,7 @@ export function ResultsList({
                       {lead.nationalPhoneNumber ? (
                         <a
                           href={`tel:${lead.nationalPhoneNumber}`}
-                          className="text-slate-400 hover:text-blue-600"
+                          className="text-slate-600 hover:text-blue-600"
                           title={lead.nationalPhoneNumber}
                         >
                           <Phone className="w-4 h-4" />
@@ -224,7 +224,7 @@ export function ResultsList({
                           href={lead.websiteUri}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-blue-600"
+                          className="text-slate-600 hover:text-blue-600"
                           title="Website"
                         >
                           <ExternalLink className="w-4 h-4" />

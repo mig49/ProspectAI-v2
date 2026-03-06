@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Lead, SearchParams } from "@/types";
 import { Button } from "./ui/button";
 import {
@@ -10,13 +10,13 @@ import {
   Phone,
   Globe,
   Star,
-  Clock,
   AlertCircle,
   CheckCircle2,
   ExternalLink,
 } from "lucide-react";
 import Markdown from "react-markdown";
-import { GoogleGenAI } from "@google/genai";
+import rehypeSanitize from "rehype-sanitize";
+import { useLeadReport } from "@/hooks/use-lead-report";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -25,69 +25,8 @@ interface LeadDetailProps {
 }
 
 export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
-  const [report, setReport] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { report, isLoading, error, retry } = useLeadReport(lead, searchParams);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        setIsLoading(true);
-        const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
-        
-        const reportPrompt = `
-          Você é um consultor de vendas B2B especialista em IA.
-          O usuário está tentando vender o seguinte serviço: "${searchParams.service}".
-          
-          Aqui estão os dados do lead (empresa):
-          Nome: ${lead.name}
-          Endereço: ${lead.address}
-          Avaliação: ${lead.rating} (${lead.userRatingCount} avaliações)
-          Website: ${lead.websiteUri ? 'Sim' : 'Não'}
-          Telefone: ${lead.nationalPhoneNumber ? 'Sim' : 'Não'}
-          Tipos: ${lead.types?.join(', ')}
-          
-          Avaliações recentes:
-          ${lead.reviews?.map((r: any) => `- ${r.rating} estrelas: "${r.text?.text}"`).join('\n') || 'Nenhuma avaliação detalhada disponível.'}
-          
-          Gere um relatório de oportunidade de vendas completo em formato Markdown (pt-BR).
-          O relatório DEVE conter as seguintes seções (use headers h2 ##):
-          
-          ## Diagnóstico Digital
-          (Analise o que está faltando ou fraco na presença online deles com base nos dados acima)
-          
-          ## Análise de Avaliações
-          (Resumo do sentimento das avaliações e reclamações comuns, se houver)
-          
-          ## Por que esta empresa precisa de IA
-          (Conecte as dores específicas deles com o serviço de IA oferecido pelo usuário)
-          
-          ## Abordagem de Vendas Sugerida
-          (Como o usuário deve abordar este lead, o que dizer na primeira mensagem/ligação)
-          
-          ## Impacto Estimado
-          (O que a IA poderia melhorar para eles em termos de negócios/faturamento/tempo)
-        `;
-
-        const reportResponse = await ai.models.generateContent({
-          model: "gemini-3.1-pro-preview",
-          contents: reportPrompt,
-        });
-
-        setReport(reportResponse.text || "Relatório não gerado.");
-      } catch (err: any) {
-        console.error("Report error:", err);
-        setError(
-          err.message || "Ocorreu um erro ao gerar o relatório de IA. Tente novamente.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchReport();
-  }, [lead, searchParams]);
 
   const copyToClipboard = () => {
     if (report) {
@@ -103,9 +42,9 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
         <Button
           variant="ghost"
           onClick={onBack}
-          className="text-slate-500 -ml-4"
+          className="text-slate-600 -ml-4"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
           Voltar à Lista
         </Button>
         <div className="flex gap-2">
@@ -116,9 +55,9 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
             className="bg-white"
           >
             {copied ? (
-              <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" />
+              <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" aria-hidden="true" />
             ) : (
-              <Copy className="w-4 h-4 mr-2" />
+              <Copy className="w-4 h-4 mr-2" aria-hidden="true" />
             )}
             {copied ? "Copiado!" : "Copiar Relatório"}
           </Button>
@@ -132,13 +71,13 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
             <h1 className="text-2xl font-bold text-slate-900 mb-2">
               {lead.name}
             </h1>
-            <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+            <div className="flex items-center gap-2 text-sm text-slate-600 mb-6">
               <span className="capitalize">
                 {lead.primaryType?.replace(/_/g, " ")}
               </span>
               <span>•</span>
               <div className="flex items-center">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400 mr-1" />
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400 mr-1" aria-hidden="true" />
                 <span className="font-medium text-slate-700">
                   {lead.rating || "N/A"}
                 </span>
@@ -148,12 +87,12 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
 
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="text-sm text-slate-700">{lead.address}</span>
               </div>
 
               <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-slate-400 shrink-0" />
+                <Phone className="w-5 h-5 text-slate-500 shrink-0" aria-hidden="true" />
                 {lead.nationalPhoneNumber ? (
                   <a
                     href={`tel:${lead.nationalPhoneNumber}`}
@@ -162,14 +101,14 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     {lead.nationalPhoneNumber}
                   </a>
                 ) : (
-                  <span className="text-sm text-slate-400 italic">
+                  <span className="text-sm text-slate-500 italic">
                     Não informado
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5 text-slate-400 shrink-0" />
+                <Globe className="w-5 h-5 text-slate-500 shrink-0" aria-hidden="true" />
                 {lead.websiteUri ? (
                   <a
                     href={lead.websiteUri}
@@ -180,7 +119,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     {lead.websiteUri}
                   </a>
                 ) : (
-                  <span className="text-sm text-slate-400 italic">
+                  <span className="text-sm text-slate-500 italic">
                     Sem website
                   </span>
                 )}
@@ -195,7 +134,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     className="text-sm font-medium text-blue-600 hover:underline flex items-center"
                   >
                     Abrir no Google Maps{" "}
-                    <ExternalLink className="w-3 h-3 ml-1" />
+                    <ExternalLink className="w-3 h-3 ml-1" aria-hidden="true" />
                   </a>
                 </div>
               )}
@@ -226,7 +165,11 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm min-h-[600px]">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center h-full space-y-4 text-slate-500 py-20">
+              <div
+                className="flex flex-col items-center justify-center h-full space-y-4 text-slate-600 py-20"
+                role="status"
+                aria-live="polite"
+              >
                 <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
                 <p className="font-medium animate-pulse">
                   A IA está analisando o lead e gerando o relatório
@@ -235,19 +178,18 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full space-y-4 text-rose-500 py-20">
-                <AlertCircle className="w-12 h-12" />
+                <AlertCircle className="w-12 h-12" aria-hidden="true" />
                 <p className="font-medium">{error}</p>
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.reload()}
-                >
+                <Button variant="outline" onClick={retry}>
                   Tentar Novamente
                 </Button>
               </div>
             ) : report ? (
               <div className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-h2:text-xl prose-h2:font-bold prose-h2:border-b prose-h2:pb-2 prose-h2:mt-8 first:prose-h2:mt-0 prose-p:text-slate-600 prose-li:text-slate-600">
                 <div className="markdown-body">
-                  <Markdown>{report}</Markdown>
+                  <Markdown rehypePlugins={[rehypeSanitize]}>
+                    {report}
+                  </Markdown>
                 </div>
               </div>
             ) : null}
