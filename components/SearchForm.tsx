@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { SearchParams } from "@/types";
 import { Search, MapPin, Target, Briefcase } from "lucide-react";
+import { motion } from "motion/react";
 
 interface SearchFormProps {
   onSearch: (params: SearchParams) => void;
@@ -25,9 +26,14 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="max-w-2xl mx-auto glass-card p-8 rounded-2xl shadow-xl"
+    >
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
+        <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">
           Encontre seus próximos clientes
         </h2>
         <p className="text-slate-600">
@@ -38,7 +44,9 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Target className="w-4 h-4 text-blue-500" aria-hidden="true" />
+            <span className="bg-blue-50 rounded-md p-1">
+              <Target className="w-4 h-4 text-blue-600" aria-hidden="true" />
+            </span>
             Descreva seu ICP (Perfil de Cliente Ideal)
           </label>
           <Textarea
@@ -52,7 +60,9 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-blue-500" aria-hidden="true" />
+            <span className="bg-blue-50 rounded-md p-1">
+              <Briefcase className="w-4 h-4 text-blue-600" aria-hidden="true" />
+            </span>
             Qual serviço você oferece?
           </label>
           <Textarea
@@ -67,13 +77,15 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-500" aria-hidden="true" />
+              <span className="bg-blue-50 rounded-md p-1">
+                <MapPin className="w-4 h-4 text-blue-600" aria-hidden="true" />
+              </span>
               Distrito
             </label>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="flex h-10 w-full rounded-lg border border-slate-200/80 bg-white/80 backdrop-blur-sm px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:border-blue-300 transition-all duration-200"
             >
               <option value="Todo Portugal">Todo Portugal</option>
               {PORTUGAL_DISTRICTS.map((s) => (
@@ -84,7 +96,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
               Cidade (Opcional)
             </label>
             <Input
@@ -113,11 +125,11 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               </span>
             )}
           </Button>
-          <p className="text-center text-xs text-slate-600 mt-3">
+          <p className="text-center text-xs text-slate-500 mt-3">
             Busca alimentada pelo Google Maps via Gemini AI (Gratuito)
           </p>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

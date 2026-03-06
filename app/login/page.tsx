@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Sparkles } from "lucide-react";
+import { motion } from "motion/react";
 
 type Tab = "login" | "signup";
 
@@ -67,29 +68,48 @@ export default function LoginPage() {
   const isLogin = tab === "login";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
-      <div className="mb-8 flex items-center gap-2">
-        <div className="bg-blue-600 p-2 rounded-lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      {/* Decorative orbs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[128px] pointer-events-none" />
+
+      {/* Dot pattern overlay */}
+      <div className="absolute inset-0 bg-dot-pattern opacity-[0.03] pointer-events-none" />
+
+      {/* Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-8 flex items-center gap-2 relative z-10"
+      >
+        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shadow-[var(--shadow-blue-lg)]">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
-        <span className="font-bold text-2xl tracking-tight text-slate-900">ProspectAI</span>
-      </div>
+        <span className="font-bold text-2xl tracking-tight text-white">ProspectAI</span>
+      </motion.div>
 
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+      {/* Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="w-full max-w-sm glass-card-dark rounded-2xl p-8 shadow-2xl relative z-10"
+      >
         {/* Tabs */}
-        <div className="flex mb-6 bg-slate-100 rounded-lg p-1">
+        <div className="flex mb-6 bg-white/5 rounded-lg p-1">
           <button
             onClick={() => { setTab("login"); setError(null); setMessage(null); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              isLogin ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
+              isLogin ? "bg-white/10 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
             }`}
           >
             Entrar
           </button>
           <button
             onClick={() => { setTab("signup"); setError(null); setMessage(null); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              !isLogin ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${
+              !isLogin ? "bg-white/10 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
             }`}
           >
             Criar Conta
@@ -99,7 +119,7 @@ export default function LoginPage() {
         {/* Google OAuth */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+          className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-white/15 rounded-lg text-sm font-medium text-white hover:bg-white/5 transition-all duration-200 cursor-pointer"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -112,15 +132,15 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs text-slate-400 uppercase">ou</span>
-          <div className="flex-1 h-px bg-slate-200" />
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-xs text-slate-500 uppercase">ou</span>
+          <div className="flex-1 h-px bg-white/10" />
         </div>
 
         {/* Form */}
         <form onSubmit={isLogin ? handleEmailLogin : handleEmailSignup} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
               Email
             </label>
             <input
@@ -130,11 +150,11 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="seu@email.com"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400/30 transition-all duration-200"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
               Senha
             </label>
             <input
@@ -145,29 +165,29 @@ export default function LoginPage() {
               required
               minLength={6}
               placeholder="Min. 6 caracteres"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400/30 transition-all duration-200"
             />
           </div>
 
           {error && (
-            <p className="text-sm text-rose-600 bg-rose-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2">{error}</p>
           )}
           {message && (
-            <p className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">{message}</p>
+            <p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">{message}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+            className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:shadow-[var(--shadow-blue-md)] hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 transition-all duration-200 cursor-pointer"
           >
             {loading ? "Aguarde..." : isLogin ? "Entrar" : "Criar Conta"}
           </button>
         </form>
-      </div>
+      </motion.div>
 
-      <p className="mt-6 text-xs text-slate-400">
-        Prospecao Inteligente B2B
+      <p className="mt-6 text-xs text-slate-500 relative z-10">
+        Prospecção Inteligente B2B
       </p>
     </div>
   );

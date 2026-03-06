@@ -17,6 +17,7 @@ import {
 import Markdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import { useLeadReport } from "@/hooks/use-lead-report";
+import { motion, AnimatePresence } from "motion/react";
 
 interface LeadDetailProps {
   lead: Lead;
@@ -52,13 +53,32 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
             variant="outline"
             onClick={copyToClipboard}
             disabled={!report || isLoading}
-            className="bg-white"
           >
-            {copied ? (
-              <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" aria-hidden="true" />
-            ) : (
-              <Copy className="w-4 h-4 mr-2" aria-hidden="true" />
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {copied ? (
+                <motion.span
+                  key="check"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mr-2"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="copy"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mr-2"
+                >
+                  <Copy className="w-4 h-4" aria-hidden="true" />
+                </motion.span>
+              )}
+            </AnimatePresence>
             {copied ? "Copiado!" : "Copiar Relatório"}
           </Button>
         </div>
@@ -67,7 +87,12 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Business Info */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="glass-card rounded-xl p-6 shadow-md"
+          >
             <h1 className="text-2xl font-bold text-slate-900 mb-2">
               {lead.name}
             </h1>
@@ -87,12 +112,12 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
 
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" aria-hidden="true" />
+                <MapPin className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="text-sm text-slate-700">{lead.address}</span>
               </div>
 
               <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-slate-500 shrink-0" aria-hidden="true" />
+                <Phone className="w-5 h-5 text-slate-400 shrink-0" aria-hidden="true" />
                 {lead.nationalPhoneNumber ? (
                   <a
                     href={`tel:${lead.nationalPhoneNumber}`}
@@ -108,7 +133,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
               </div>
 
               <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5 text-slate-500 shrink-0" aria-hidden="true" />
+                <Globe className="w-5 h-5 text-slate-400 shrink-0" aria-hidden="true" />
                 {lead.websiteUri ? (
                   <a
                     href={lead.websiteUri}
@@ -126,7 +151,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
               </div>
 
               {lead.googleMapsUri && (
-                <div className="pt-4 mt-4 border-t border-slate-100">
+                <div className="pt-4 mt-4 border-t border-slate-100/60">
                   <a
                     href={lead.googleMapsUri}
                     target="_blank"
@@ -139,18 +164,34 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 text-white shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 rounded-xl border border-slate-800 p-6 text-white shadow-lg"
+          >
             <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">
               Digital Pain Score
             </h3>
-            <div className="flex items-end gap-3 mb-2">
-              <span className="text-5xl font-bold tracking-tighter">
+            <div className="flex items-end gap-3 mb-3">
+              <span className="text-5xl font-bold tracking-tighter text-gradient">
                 {lead.digitalPainScore}
               </span>
               <span className="text-slate-400 mb-1">/ 100</span>
             </div>
+
+            {/* Animated progress bar */}
+            <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-3">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${lead.digitalPainScore}%` }}
+                transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+              />
+            </div>
+
             <p className="text-sm text-slate-300">
               {lead.digitalPainScore > 60
                 ? "Alta oportunidade. Fortes deficiências digitais encontradas."
@@ -158,20 +199,28 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                   ? "Oportunidade média. Algumas melhorias necessárias."
                   : "Baixa oportunidade. Presença digital sólida."}
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right Column: AI Report */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm min-h-[600px]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+            className="glass-card rounded-xl p-8 shadow-md min-h-[600px]"
+          >
             {isLoading ? (
               <div
                 className="flex flex-col items-center justify-center h-full space-y-4 text-slate-600 py-20"
                 role="status"
                 aria-live="polite"
               >
-                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                <p className="font-medium animate-pulse">
+                <div className="relative">
+                  <div className="w-10 h-10 border-4 border-blue-100 rounded-full" />
+                  <div className="absolute inset-0 w-10 h-10 border-4 border-transparent border-t-blue-600 rounded-full animate-spin" />
+                </div>
+                <p className="font-medium animate-pulse text-slate-500">
                   A IA está analisando o lead e gerando o relatório
                   estratégico...
                 </p>
@@ -193,7 +242,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                 </div>
               </div>
             ) : null}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

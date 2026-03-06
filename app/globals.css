@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
 :root {
@@ -23,6 +24,24 @@
   --color-danger: #e11d48;
   --color-danger-light: #ffe4e6;
 
+  /* Gradients */
+  --gradient-primary: linear-gradient(to right, #2563eb, #4f46e5);
+  --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  --gradient-header: linear-gradient(to right, #0f172a, #0f172a, #1e1b4b);
+
+  /* Shadows - Blue-tinted */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-blue-sm: 0 2px 8px -2px rgb(37 99 235 / 0.15);
+  --shadow-blue-md: 0 4px 16px -4px rgb(37 99 235 / 0.2);
+  --shadow-blue-lg: 0 8px 32px -8px rgb(37 99 235 / 0.25);
+
+  /* Glassmorphism */
+  --glass-bg: rgb(255 255 255 / 0.7);
+  --glass-border: rgb(255 255 255 / 0.6);
+  --glass-bg-dark: rgb(255 255 255 / 0.1);
+  --glass-border-dark: rgb(255 255 255 / 0.15);
+
   /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -37,10 +56,44 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
+}
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+/* Utility Classes */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-card-dark {
+  background: var(--glass-bg-dark);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-dark);
+}
+
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgb(148 163 184 / 0.2) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.1) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.glow-blue {
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15), 0 0 16px -4px rgb(37 99 235 / 0.2);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Lead } from "@/types";
 import { Button } from "./ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 interface ResultsListProps {
   results: Lead[];
@@ -42,15 +43,9 @@ export function ResultsList({
 
   const getScoreColor = (score: number) => {
     if (score <= 30)
-      return "bg-emerald-100 text-emerald-800 border-emerald-200";
-    if (score <= 60) return "bg-amber-100 text-amber-800 border-amber-200";
-    return "bg-rose-100 text-rose-800 border-rose-200";
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score <= 30) return "Baixa Oportunidade";
-    if (score <= 60) return "Média Oportunidade";
-    return "Alta Oportunidade";
+      return "bg-emerald-100 text-emerald-800 border-emerald-200 shadow-emerald-100";
+    if (score <= 60) return "bg-amber-100 text-amber-800 border-amber-200 shadow-amber-100";
+    return "bg-rose-100 text-rose-800 border-rose-200 shadow-rose-100";
   };
 
   return (
@@ -65,17 +60,17 @@ export function ResultsList({
             &larr; Nova Busca
           </Button>
           <h2 className="text-2xl font-bold text-slate-900">
-            {results.length} Leads Encontrados
+            <span className="text-gradient">{results.length}</span> Leads Encontrados
           </h2>
         </div>
 
-        <div className="flex items-center bg-white border border-slate-200 rounded-lg p-1">
+        <div className="flex items-center glass-card rounded-lg p-1">
           <button
             onClick={() => toggleViewMode("card")}
             className={cn(
-              "p-2 rounded-md transition-colors",
+              "p-2 rounded-md transition-all duration-200 cursor-pointer",
               viewMode === "card"
-                ? "bg-slate-100 text-slate-900"
+                ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-600 hover:text-slate-900",
             )}
             title="Visualização em Cards"
@@ -85,9 +80,9 @@ export function ResultsList({
           <button
             onClick={() => toggleViewMode("table")}
             className={cn(
-              "p-2 rounded-md transition-colors",
+              "p-2 rounded-md transition-all duration-200 cursor-pointer",
               viewMode === "table"
-                ? "bg-slate-100 text-slate-900"
+                ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-600 hover:text-slate-900",
             )}
             title="Visualização em Tabela"
@@ -99,10 +94,13 @@ export function ResultsList({
 
       {viewMode === "card" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((lead) => (
-            <div
+          {results.map((lead, index) => (
+            <motion.div
               key={lead.id}
-              className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: "easeOut" }}
+              className="glass-card rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
               <div className="p-5 flex-grow">
                 <div className="flex justify-between items-start mb-3">
@@ -111,7 +109,7 @@ export function ResultsList({
                   </h3>
                   <div
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-xs font-bold border whitespace-nowrap ml-3",
+                      "px-2.5 py-1 rounded-full text-xs font-bold border whitespace-nowrap ml-3 shadow-sm",
                       getScoreColor(lead.digitalPainScore),
                     )}
                   >
@@ -121,13 +119,13 @@ export function ResultsList({
 
                 <div className="space-y-2 mb-4 text-sm text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-slate-500 shrink-0" />
+                    <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
                     <span className="truncate">
                       {lead.primaryType?.replace(/_/g, " ") || "Negócio Local"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                     <span className="truncate">
                       {lead.city}, {lead.state}
                     </span>
@@ -141,25 +139,25 @@ export function ResultsList({
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-4">
+                <div className="bg-slate-50/80 p-3 rounded-lg border border-slate-100/80 mb-4">
                   <p className="text-sm text-slate-700 italic line-clamp-3">
                     &quot;{lead.aiSummary}&quot;
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+              <div className="p-4 border-t border-slate-100/80 bg-gradient-to-r from-slate-50/80 to-blue-50/40">
                 <Button className="w-full" onClick={() => onSelectLead(lead)}>
                   Ver Relatório Completo
                 </Button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
+        <div className="glass-card rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
+            <thead className="text-xs text-slate-600 uppercase bg-slate-50/50 border-b border-slate-200/60">
               <tr>
                 <th className="px-6 py-4 font-medium">Nome</th>
                 <th className="px-6 py-4 font-medium">Local</th>
@@ -170,10 +168,13 @@ export function ResultsList({
               </tr>
             </thead>
             <tbody>
-              {results.map((lead) => (
-                <tr
+              {results.map((lead, index) => (
+                <motion.tr
                   key={lead.id}
-                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="border-b border-slate-100/60 hover:bg-blue-50/30 transition-colors"
                 >
                   <td
                     className="px-6 py-4 font-medium text-slate-900 max-w-[200px] truncate"
@@ -199,7 +200,7 @@ export function ResultsList({
                   <td className="px-6 py-4">
                     <div
                       className={cn(
-                        "inline-flex px-2 py-1 rounded text-xs font-medium border",
+                        "inline-flex px-2 py-1 rounded text-xs font-medium border shadow-sm",
                         getScoreColor(lead.digitalPainScore),
                       )}
                     >
@@ -211,7 +212,7 @@ export function ResultsList({
                       {lead.nationalPhoneNumber ? (
                         <a
                           href={`tel:${lead.nationalPhoneNumber}`}
-                          className="text-slate-600 hover:text-blue-600"
+                          className="text-slate-600 hover:text-blue-600 transition-colors"
                           title={lead.nationalPhoneNumber}
                         >
                           <Phone className="w-4 h-4" />
@@ -224,7 +225,7 @@ export function ResultsList({
                           href={lead.websiteUri}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-slate-600 hover:text-blue-600"
+                          className="text-slate-600 hover:text-blue-600 transition-colors"
                           title="Website"
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -243,7 +244,7 @@ export function ResultsList({
                       Relatório
                     </Button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
