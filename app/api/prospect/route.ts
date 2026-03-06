@@ -110,36 +110,42 @@ export async function POST(request: NextRequest) {
     // Persist to Supabase (non-blocking)
     try {
       const supabase = await createClient();
-      const { data: searchRecord } = await supabase
-        .from("searches")
-        .insert({
-          icp,
-          service,
-          district: state,
-          city: city || "",
-          results_count: leads.length,
-        })
-        .select("id")
-        .single();
+      const { data: { user } } = await supabase.auth.getUser();
 
-      if (searchRecord?.id && leads.length > 0) {
-        const leadsToInsert = leads.map((l: any) => ({
-          search_id: searchRecord.id,
-          external_id: l.id,
-          name: l.name,
-          address: l.address || "",
-          city: l.city || "",
-          district: l.state || "",
-          rating: l.rating,
-          user_rating_count: l.userRatingCount || 0,
-          primary_type: l.primaryType || "",
-          phone: l.nationalPhoneNumber || null,
-          website: l.websiteUri || null,
-          google_maps_uri: l.googleMapsUri || null,
-          digital_pain_score: l.digitalPainScore || 0,
-          ai_summary: l.aiSummary || "",
-        }));
-        await supabase.from("leads").insert(leadsToInsert);
+      if (user) {
+        const { data: searchRecord } = await supabase
+          .from("searches")
+          .insert({
+            user_id: user.id,
+            icp,
+            service,
+            district: state,
+            city: city || "",
+            results_count: leads.length,
+          })
+          .select("id")
+          .single();
+
+        if (searchRecord?.id && leads.length > 0) {
+          const leadsToInsert = leads.map((l: any) => ({
+            search_id: searchRecord.id,
+            user_id: user.id,
+            external_id: l.id,
+            name: l.name,
+            address: l.address || "",
+            city: l.city || "",
+            district: l.state || "",
+            rating: l.rating,
+            user_rating_count: l.userRatingCount || 0,
+            primary_type: l.primaryType || "",
+            phone: l.nationalPhoneNumber || null,
+            website: l.websiteUri || null,
+            google_maps_uri: l.googleMapsUri || null,
+            digital_pain_score: l.digitalPainScore || 0,
+            ai_summary: l.aiSummary || "",
+          }));
+          await supabase.from("leads").insert(leadsToInsert);
+        }
       }
     } catch (dbErr) {
       console.error("Supabase persist error (non-blocking):", dbErr);
