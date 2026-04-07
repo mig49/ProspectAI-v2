@@ -2,9 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { searchParamsSchema, leadsArraySchema } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-limit";
+
+const RATE_LIMIT = 10;
+const RATE_WINDOW_MS = 60_000;
 
 export async function POST(request: NextRequest) {
   try {
+    const identifier = await getRateLimitIdentifier(request);
+    const rl = rateLimit(identifier, RATE_LIMIT, RATE_WINDOW_MS);
+
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Limite de requisicoes excedido. Tente novamente em breve." },
+        { status: 429, headers: rateLimitHeaders(rl) }
+      );
+    }
+
     const body = await request.json();
     const parsed = searchParamsSchema.safeParse(body);
 
@@ -151,7 +165,7 @@ export async function POST(request: NextRequest) {
       console.error("Supabase persist error (non-blocking):", dbErr);
     }
 
-    return NextResponse.json({ leads });
+    return NextResponse.json({ leads }, { headers: rateLimitHeaders(rl) });
   } catch (err: any) {
     console.error("Prospect API error:", err);
     return NextResponse.json(

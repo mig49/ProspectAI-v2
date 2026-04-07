@@ -55,3 +55,10 @@ CREATE POLICY "Users can delete own searches" ON searches FOR DELETE USING (auth
 CREATE POLICY "Users can view own leads" ON leads FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own leads" ON leads FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own leads" ON leads FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own searches" ON searches FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own leads" ON leads FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

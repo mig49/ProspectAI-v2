@@ -2,9 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { reportParamsSchema } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-limit";
+
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
 
 export async function POST(request: NextRequest) {
   try {
+    const identifier = await getRateLimitIdentifier(request);
+    const rl = rateLimit(identifier, RATE_LIMIT, RATE_WINDOW_MS);
+
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Limite de requisicoes excedido. Tente novamente em breve." },
+        { status: 429, headers: rateLimitHeaders(rl) }
+      );
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -95,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     const report = reportResponse.text || "Relatorio nao gerado.";
 
-    return NextResponse.json({ report });
+    return NextResponse.json({ report }, { headers: rateLimitHeaders(rl) });
   } catch (err: any) {
     console.error("Report API error:", err);
     return NextResponse.json(

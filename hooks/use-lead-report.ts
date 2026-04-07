@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Lead, SearchParams } from "@/types";
 
 export function useLeadReport(lead: Lead, searchParams: SearchParams) {
@@ -6,7 +6,7 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -42,11 +42,11 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [lead, searchParams.service]);
 
   useEffect(() => {
     fetchReport();
-  }, [lead.id]);
+  }, [fetchReport]);
 
   return { report, isLoading, error, retry: fetchReport };
 }
