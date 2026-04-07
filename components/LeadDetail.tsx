@@ -229,10 +229,14 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                   <div className="w-10 h-10 border-4 border-blue-100 rounded-full" />
                   <div className="absolute inset-0 w-10 h-10 border-4 border-transparent border-t-blue-600 rounded-full animate-spin" />
                 </div>
-                <p className="font-medium animate-pulse text-slate-500">
-                  A IA está analisando o lead e gerando o relatório
-                  estratégico...
-                </p>
+                <div className="text-center space-y-1">
+                  <p className="font-medium text-slate-700">
+                    Analisando {lead.name}...
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    Gerando relatorio estrategico (estimado: 15-20s)
+                  </p>
+                </div>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full space-y-4 text-rose-500 py-20">

@@ -1,3 +1,23 @@
+export type OpeningHours = {
+  weekdayDescriptions?: string[];
+  periods?: {
+    open: { day: number; hour: number; minute: number };
+    close?: { day: number; hour: number; minute: number };
+  }[];
+};
+
+export type PlacePhoto = {
+  name?: string;
+  widthPx?: number;
+  heightPx?: number;
+};
+
+export type PlaceReview = {
+  rating?: number;
+  text?: { text: string; languageCode?: string };
+  relativePublishTimeDescription?: string;
+};
+
 export type Lead = {
   id: string;
   name: string;
@@ -10,9 +30,9 @@ export type Lead = {
   primaryType: string;
   nationalPhoneNumber?: string;
   websiteUri?: string;
-  regularOpeningHours?: any;
-  photos?: any[];
-  reviews?: any[];
+  regularOpeningHours?: OpeningHours;
+  photos?: PlacePhoto[];
+  reviews?: PlaceReview[];
   businessStatus?: string;
   googleMapsUri?: string;
   digitalPainScore: number;

@@ -14,7 +14,7 @@ export default function Home() {
   const [step, setStep] = useState<"search" | "results" | "detail">("search");
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const { results, isLoading, error, search, clearError, clearResults } =
+  const { results, isLoading, error, pagination, search, goToPage, clearError, clearResults } =
     useProspectSearch();
 
   const handleSearch = async (params: SearchParams) => {
@@ -124,6 +124,8 @@ export default function Home() {
                 results={results}
                 onSelectLead={handleSelectLead}
                 onBack={handleBackToSearch}
+                pagination={pagination}
+                onPageChange={goToPage}
               />
             </motion.div>
           )}

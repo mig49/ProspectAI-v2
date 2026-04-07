@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { icp, service, state, city } = parsed.data;
+    const { icp, service, state, city, page, limit } = parsed.data;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -178,7 +178,16 @@ export async function POST(request: NextRequest) {
       console.error("Supabase persist error (non-blocking):", dbErr);
     }
 
-    return NextResponse.json({ leads }, { headers: rateLimitHeaders(rl) });
+    // Paginate
+    const total = leads.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paginatedLeads = leads.slice(start, start + limit);
+
+    return NextResponse.json(
+      { leads: paginatedLeads, total, page, limit, totalPages },
+      { headers: rateLimitHeaders(rl) }
+    );
   } catch (err: any) {
     if (err.message === "TIMEOUT") {
       return NextResponse.json(

@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PORTUGAL_DISTRICTS } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { SearchParams } from "@/types";
 import { Search, MapPin, Target, Briefcase } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+
+const PROGRESS_STEPS = [
+  { delay: 0, message: "Consultando Google Maps..." },
+  { delay: 5000, message: "Analisando presenca digital..." },
+  { delay: 12000, message: "Calculando scores de oportunidade..." },
+  { delay: 20000, message: "Finalizando resultados..." },
+];
 
 interface SearchFormProps {
   onSearch: (params: SearchParams) => void;
@@ -19,6 +26,19 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [service, setService] = useState("");
   const [state, setState] = useState("Lisboa");
   const [city, setCity] = useState("");
+  const [progressStep, setProgressStep] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading) return;
+    // All state updates via setTimeout to comply with React hooks lint rules
+    const timers = PROGRESS_STEPS.map((step, index) =>
+      setTimeout(() => setProgressStep(index), step.delay)
+    );
+    return () => {
+      timers.forEach(clearTimeout);
+      setTimeout(() => setProgressStep(0), 0);
+    };
+  }, [isLoading]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,9 +145,26 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               </span>
             )}
           </Button>
-          <p className="text-center text-xs text-slate-500 mt-3">
-            Busca alimentada pelo Google Maps via Gemini AI (Gratuito)
-          </p>
+          {isLoading ? (
+            <div className="text-center mt-3">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={progressStep}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-sm text-blue-600 font-medium"
+                >
+                  {PROGRESS_STEPS[progressStep]?.message}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          ) : (
+            <p className="text-center text-xs text-slate-500 mt-3">
+              Busca alimentada pelo Google Maps via Gemini AI (Gratuito)
+            </p>
+          )}
         </div>
       </form>
     </motion.div>

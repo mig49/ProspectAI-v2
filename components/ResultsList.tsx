@@ -11,20 +11,33 @@ import {
   Building2,
   ExternalLink,
   Phone,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
+
+type PaginationInfo = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
 
 interface ResultsListProps {
   results: Lead[];
   onSelectLead: (lead: Lead) => void;
   onBack: () => void;
+  pagination?: PaginationInfo | null;
+  onPageChange?: (page: number) => void;
 }
 
 export function ResultsList({
   results,
   onSelectLead,
   onBack,
+  pagination,
+  onPageChange,
 }: ResultsListProps) {
   const [viewMode, setViewMode] = useState<"card" | "table">(() => {
     if (typeof window !== "undefined") {
@@ -60,7 +73,7 @@ export function ResultsList({
             &larr; Nova Busca
           </Button>
           <h2 className="text-2xl font-bold text-slate-900">
-            <span className="text-gradient">{results.length}</span> Leads Encontrados
+            <span className="text-gradient">{pagination?.total ?? results.length}</span> Leads Encontrados
           </h2>
         </div>
 
@@ -248,6 +261,32 @@ export function ResultsList({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Anterior
+          </Button>
+          <span className="text-sm text-slate-600">
+            Pagina {pagination.page} de {pagination.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(pagination.page + 1)}
+            disabled={pagination.page >= pagination.totalPages}
+          >
+            Proxima
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
         </div>
       )}
     </div>
