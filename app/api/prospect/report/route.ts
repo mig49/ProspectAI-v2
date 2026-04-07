@@ -6,6 +6,16 @@ import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-
 
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60_000;
+const GEMINI_TIMEOUT_MS = 60_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), ms)
+    ),
+  ]);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,11 +51,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { leadId, lead, service } = parsed.data;
+    const { leadId, lead, service, forceRegenerate } = parsed.data;
 
+    // Ownership check + cache lookup in single query
     const { data: ownedLead } = await supabase
       .from("leads")
-      .select("id")
+      .select("id, detailed_report")
       .eq("external_id", leadId)
       .eq("user_id", user.id)
       .single();
@@ -54,6 +65,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Acesso negado. Este lead nao pertence ao seu usuario." },
         { status: 403 }
+      );
+    }
+
+    // Return cached report if available and not forcing regeneration
+    if (ownedLead.detailed_report && !forceRegenerate) {
+      return NextResponse.json(
+        { report: ownedLead.detailed_report, cached: true },
+        { headers: rateLimitHeaders(rl) }
       );
     }
 
@@ -102,15 +121,34 @@ export async function POST(request: NextRequest) {
       (O que a IA poderia melhorar para eles em termos de negocios/faturamento/tempo)
     `;
 
-    const reportResponse = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: reportPrompt,
-    });
+    const reportResponse = await withTimeout(
+      ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: reportPrompt,
+      }),
+      GEMINI_TIMEOUT_MS
+    );
 
     const report = reportResponse.text || "Relatorio nao gerado.";
 
-    return NextResponse.json({ report }, { headers: rateLimitHeaders(rl) });
+    // Save to cache (non-blocking)
+    supabase
+      .from("leads")
+      .update({ detailed_report: report })
+      .eq("id", ownedLead.id)
+      .then(() => {});
+
+    return NextResponse.json(
+      { report, cached: false },
+      { headers: rateLimitHeaders(rl) }
+    );
   } catch (err: any) {
+    if (err.message === "TIMEOUT") {
+      return NextResponse.json(
+        { error: "A geracao do relatorio excedeu o tempo limite de 60 segundos. Tente novamente." },
+        { status: 504 }
+      );
+    }
     console.error("Report API error:", err);
     return NextResponse.json(
       { error: err.message || "Erro ao gerar relatorio." },

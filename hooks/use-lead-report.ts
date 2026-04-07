@@ -6,7 +6,7 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReport = useCallback(async () => {
+  const fetchReport = useCallback(async (forceRegenerate = false) => {
     setIsLoading(true);
     setError(null);
 
@@ -16,6 +16,7 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           leadId: lead.id,
+          forceRegenerate,
           lead: {
             name: lead.name,
             address: lead.address,
@@ -48,5 +49,7 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
     fetchReport();
   }, [fetchReport]);
 
-  return { report, isLoading, error, retry: fetchReport };
+  const regenerate = useCallback(() => fetchReport(true), [fetchReport]);
+
+  return { report, isLoading, error, retry: fetchReport, regenerate };
 }

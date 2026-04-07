@@ -13,6 +13,7 @@ import {
   AlertCircle,
   CheckCircle2,
   ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
@@ -26,7 +27,7 @@ interface LeadDetailProps {
 }
 
 export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
-  const { report, isLoading, error, retry } = useLeadReport(lead, searchParams);
+  const { report, isLoading, error, retry, regenerate } = useLeadReport(lead, searchParams);
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = () => {
@@ -49,6 +50,14 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
           Voltar à Lista
         </Button>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={regenerate}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} aria-hidden="true" />
+            Regenerar
+          </Button>
           <Button
             variant="outline"
             onClick={copyToClipboard}
@@ -229,7 +238,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
               <div className="flex flex-col items-center justify-center h-full space-y-4 text-rose-500 py-20">
                 <AlertCircle className="w-12 h-12" aria-hidden="true" />
                 <p className="font-medium">{error}</p>
-                <Button variant="outline" onClick={retry}>
+                <Button variant="outline" onClick={() => retry()}>
                   Tentar Novamente
                 </Button>
               </div>

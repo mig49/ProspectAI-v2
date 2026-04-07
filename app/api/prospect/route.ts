@@ -6,6 +6,16 @@ import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-
 
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 60_000;
+const GEMINI_TIMEOUT_MS = 60_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), ms)
+    ),
+  ]);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,14 +82,17 @@ export async function POST(request: NextRequest) {
       Retorne APENAS o JSON valido, sem blocos de codigo markdown (\`\`\`json) e sem texto adicional.
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        tools: [{ googleMaps: {} }],
-        temperature: 0.2,
-      },
-    });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          tools: [{ googleMaps: {} }],
+          temperature: 0.2,
+        },
+      }),
+      GEMINI_TIMEOUT_MS
+    );
 
     let text = response.text || "[]";
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
@@ -167,6 +180,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ leads }, { headers: rateLimitHeaders(rl) });
   } catch (err: any) {
+    if (err.message === "TIMEOUT") {
+      return NextResponse.json(
+        { error: "A busca excedeu o tempo limite de 60 segundos. Tente novamente com uma area menor." },
+        { status: 504 }
+      );
+    }
     console.error("Prospect API error:", err);
     return NextResponse.json(
       { error: err.message || "Erro interno do servidor." },
