@@ -8,6 +8,7 @@ export const searchParamsSchema = z.object({
 });
 
 export const reportParamsSchema = z.object({
+  leadId: z.string().min(1),
   lead: z.object({
     name: z.string(),
     address: z.string(),

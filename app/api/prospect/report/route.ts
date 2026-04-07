@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { reportParamsSchema } from "@/lib/validation";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Autenticacao necessaria." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const parsed = reportParamsSchema.safeParse(body);
 
@@ -14,7 +27,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { lead, service } = parsed.data;
+    const { leadId, lead, service } = parsed.data;
+
+    const { data: ownedLead } = await supabase
+      .from("leads")
+      .select("id")
+      .eq("external_id", leadId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!ownedLead) {
+      return NextResponse.json(
+        { error: "Acesso negado. Este lead nao pertence ao seu usuario." },
+        { status: 403 }
+      );
+    }
+
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {

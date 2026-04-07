@@ -15,6 +15,7 @@ export function useLeadReport(lead: Lead, searchParams: SearchParams) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          leadId: lead.id,
           lead: {
             name: lead.name,
             address: lead.address,
