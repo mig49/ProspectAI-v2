@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | EPIC-1 |
-| **Status** | Draft |
+| **Status** | Done |
 | **Owner** | @architect (Aria) |
 | **Criado** | 2026-03-06 |
 | **Origem** | Brownfield Discovery |
@@ -90,15 +90,15 @@ Resolver os 16 debitos tecnicos identificados no Brownfield Discovery, priorizan
 
 ## Success Criteria
 
-- [ ] Zero vulnerabilidades criticas (SEC-1, SEC-2, SEC-3 resolvidos)
-- [ ] Cobertura de testes >= 60% nas API routes e hooks
-- [ ] Rate limiting ativo (max 10 buscas/min por usuario)
-- [ ] Reports cacheados no Supabase (custo Gemini reduzido)
-- [ ] Timeout de 60s em todas chamadas Gemini
-- [ ] RLS completo (SELECT/INSERT/UPDATE/DELETE)
-- [ ] Zero dependencias mortas
-- [ ] ESLint ativo no build
-- [ ] `npm run build` passa sem erros ou warnings
+- [x] Zero vulnerabilidades criticas (SEC-1, SEC-2, SEC-3 resolvidos)
+- [x] Cobertura de testes >= 60% nas API routes e hooks
+- [x] Rate limiting ativo (max 10 buscas/min por usuario)
+- [x] Reports cacheados no Supabase (custo Gemini reduzido)
+- [x] Timeout de 60s em todas chamadas Gemini
+- [x] RLS completo (SELECT/INSERT/UPDATE/DELETE)
+- [x] Zero dependencias mortas
+- [x] ESLint ativo no build
+- [x] `npm run build` passa sem erros ou warnings
 
 ## Risks
 
