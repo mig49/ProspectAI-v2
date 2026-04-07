@@ -62,8 +62,8 @@ Resolver os 16 debitos tecnicos identificados no Brownfield Discovery, priorizan
 | 1.3 | Cleanup: deps mortas, configs, ESLint, RLS | 1 | 2 | P1 | Ready | DB-1, DX-1, CONFIG-1, DEPS-1, DEPS-2 |
 | 1.4 | Setup testing framework + testes core | 2 | 13 | P1 | Done | QA-1 |
 | 1.5 | Cache de reports + timeout Gemini | 2 | 3 | P1 | Done | PERF-1, PERF-2 |
-| 1.6 | DB migrations + paginacao + tipos | 3 | 8 | P2 | Draft | DB-2, API-1, TYPE-1 |
-| 1.7 | UX progress feedback + documentacao | 3 | 5 | P2 | Draft | UX-1, DOC-1 |
+| 1.6 | DB migrations + paginacao + tipos | 3 | 8 | P2 | Done | DB-2, API-1, TYPE-1 |
+| 1.7 | UX progress feedback + documentacao | 3 | 5 | P2 | Done | UX-1, DOC-1 |
 
 **Total:** 39 story points | ~52-72 horas estimadas
 
