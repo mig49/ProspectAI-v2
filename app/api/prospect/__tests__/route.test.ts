@@ -8,12 +8,37 @@ vi.mock("@/lib/supabase/server", () => ({
         data: { user: { id: "test-user-id" } },
       }),
     },
-    from: vi.fn().mockReturnValue({
-      insert: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: { id: "search-1" } }),
+    from: vi.fn().mockImplementation((table: string) => {
+      if (table === "subscriptions") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: { plan: "pro", status: "active" } }),
+            }),
+          }),
+        };
+      }
+      if (table === "usage") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { searches_count: 0, reports_count: 0, exports_count: 0 } }),
+              }),
+            }),
+          }),
+          insert: vi.fn().mockResolvedValue({ error: null }),
+          update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+        };
+      }
+      // Default: searches/leads tables
+      return {
+        insert: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: { id: "search-1" } }),
+          }),
         }),
-      }),
+      };
     }),
   }),
 }));

@@ -3,6 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { searchParamsSchema, leadsArraySchema } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-limit";
+import { checkUsageLimit, incrementUsage, paywallResponse } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/constants";
 
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 60_000;
@@ -27,6 +29,20 @@ export async function POST(request: NextRequest) {
         { error: "Limite de requisicoes excedido. Tente novamente em breve." },
         { status: 429, headers: rateLimitHeaders(rl) }
       );
+    }
+
+    // Paywall: check subscription usage limits
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const usageCheck = await checkUsageLimit(user.id, "searches");
+      if (!usageCheck.allowed) {
+        return NextResponse.json(
+          paywallResponse("searches", usageCheck.plan, usageCheck.used, usageCheck.limit),
+          { status: 403 }
+        );
+      }
     }
 
     const body = await request.json();
@@ -134,11 +150,13 @@ export async function POST(request: NextRequest) {
     const leads = validated.success ? validated.data : searchResults;
     leads.sort((a: any, b: any) => (b.digitalPainScore || 0) - (a.digitalPainScore || 0));
 
+    // Increment usage counter
+    if (user) {
+      await incrementUsage(user.id, "searches");
+    }
+
     // Persist to Supabase (non-blocking)
     try {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
       if (user) {
         const { data: searchRecord } = await supabase
           .from("searches")

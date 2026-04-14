@@ -1,3 +1,11 @@
+import type { PlanId } from "@/lib/stripe";
+
+export const PLAN_LIMITS: Record<PlanId, { searches: number; reports: number; exports: number; leads_per_search: number }> = {
+  free:  { searches: 3,   reports: 1,     exports: 0,   leads_per_search: 20 },
+  pro:   { searches: 30,  reports: 9999,  exports: 30,  leads_per_search: 50 },
+  scale: { searches: 100, reports: 9999,  exports: 100, leads_per_search: 50 },
+} as const;
+
 export const PORTUGAL_DISTRICTS = [
   { value: "Aveiro", label: "Aveiro" },
   { value: "Beja", label: "Beja" },

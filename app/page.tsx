@@ -7,7 +7,10 @@ import { LeadDetail } from "@/components/LeadDetail";
 import { Lead, SearchParams } from "@/types";
 import { Sparkles, LogOut } from "lucide-react";
 import { useProspectSearch } from "@/hooks/use-prospect-search";
+import { useSubscription } from "@/hooks/use-subscription";
 import { createClient } from "@/lib/supabase/client";
+import { PlanBadge } from "@/components/PlanBadge";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function Home() {
@@ -16,8 +19,11 @@ export default function Home() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const { results, isLoading, error, pagination, search, goToPage, clearError, clearResults } =
     useProspectSearch();
+  const { plan } = useSubscription();
+  const [paywallInfo, setPaywallInfo] = useState<{ feature: string; plan: string; used: number; limit: number } | null>(null);
 
   const handleSearch = async (params: SearchParams) => {
+    setPaywallInfo(null);
     setSearchParams(params);
     const leads = await search(params);
     if (leads.length > 0) {
@@ -53,6 +59,7 @@ export default function Home() {
               <Sparkles className="w-5 h-5 text-white" aria-hidden="true" />
             </div>
             <span className="font-bold text-xl tracking-tight">ProspectAI</span>
+            <PlanBadge plan={plan} />
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-300 hidden sm:block">
@@ -76,7 +83,24 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 bg-dot-pattern">
         <AnimatePresence mode="wait">
-          {error && (
+          {error && error.includes("Limite de") ? (
+            <motion.div
+              key="paywall"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+              className="mb-6"
+            >
+              <UpgradePrompt
+                feature="searches"
+                plan={plan}
+                used={0}
+                limit={0}
+                onDismiss={clearError}
+              />
+            </motion.div>
+          ) : error ? (
             <motion.div
               key="error"
               initial={{ opacity: 0, y: -12 }}
@@ -96,7 +120,7 @@ export default function Home() {
                 &times;
               </button>
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
 
         <AnimatePresence mode="wait">

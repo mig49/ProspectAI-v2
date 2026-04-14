@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { reportParamsSchema } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getRateLimitIdentifier, rateLimitHeaders } from "@/lib/rate-limit";
+import { checkUsageLimit, incrementUsage, paywallResponse } from "@/lib/subscription";
 
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60_000;
@@ -38,6 +39,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Autenticacao necessaria." },
         { status: 401 }
+      );
+    }
+
+    // Paywall: check report usage limits
+    const usageCheck = await checkUsageLimit(user.id, "reports");
+    if (!usageCheck.allowed) {
+      return NextResponse.json(
+        paywallResponse("reports", usageCheck.plan, usageCheck.used, usageCheck.limit),
+        { status: 403 }
       );
     }
 
@@ -130,6 +140,9 @@ export async function POST(request: NextRequest) {
     );
 
     const report = reportResponse.text || "Relatorio nao gerado.";
+
+    // Increment usage counter
+    await incrementUsage(user.id, "reports");
 
     // Save to cache (non-blocking)
     supabase
