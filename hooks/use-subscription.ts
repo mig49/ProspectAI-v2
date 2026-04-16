@@ -33,8 +33,17 @@ export function useSubscription() {
   }, []);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    let cancelled = false;
+    fetch("/api/user/subscription")
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (!cancelled) setState({ ...data, isLoading: false });
+      })
+      .catch(() => {
+        if (!cancelled) setState((prev) => ({ ...prev, isLoading: false }));
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const checkout = async (plan: "pro" | "scale") => {
     const res = await fetch("/api/stripe/checkout", {
